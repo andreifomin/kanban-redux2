@@ -12,8 +12,8 @@ function Column({ status, tasks }) {
         {tasks
           .filter((task) => task.status === status)
           .sort((task1, task2) => task1.priority - task2.priority)
-          .map((task) => (
-            <Card key={task.id} task={task} />
+          .map((task, index) => (
+            <Card key={task.id} task={task} index={index} />
           ))}
       </div>
     </div>

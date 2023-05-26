@@ -1,7 +1,9 @@
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 import { useState } from "react";
+import { updateTask } from "../redux/actions";
+import { connect } from "react-redux";
 
-function EditTaskModal({ task }) {
+function EditTodoModal({ task, updateTask }) {
   const [name, setName] = useState(task.name);
   const [description, setDescription] = useState(task.description);
 
@@ -9,8 +11,20 @@ function EditTaskModal({ task }) {
 
   const toggle = () => setModal(!modal);
 
-  const onChangeInputName = (event) => {
-    setName(event.target.value);
+  const toggleClear = () => {
+    setModal(!modal);
+    setName(task.name);
+    setDescription(task.description);
+  };
+
+  const handleButtonSave = () => {
+    const taskUpdated = {
+      ...task,
+      name: name,
+      description: description,
+    };
+    updateTask(taskUpdated);
+    toggle();
   };
 
   return (
@@ -23,7 +37,7 @@ function EditTaskModal({ task }) {
         Edit
       </Button>
       <Modal isOpen={modal} toggle={toggle}>
-        <ModalHeader toggle={toggle}>Edit task</ModalHeader>
+        <ModalHeader>Edit task</ModalHeader>
         <ModalBody>
           <div className="mb-3">
             {/*Name*/}
@@ -37,6 +51,7 @@ function EditTaskModal({ task }) {
                 id="basic-url"
                 aria-describedby="basic-addon3 basic-addon4"
                 value={name}
+                onChange={(event) => setName(event.target.value)}
               />
             </div>
             <br />
@@ -51,7 +66,7 @@ function EditTaskModal({ task }) {
                 id="basic-url"
                 aria-describedby="basic-addon3 basic-addon4"
                 value={description}
-                onChange={onChangeInputName}
+                onChange={(event) => setDescription(event.target.value)}
               />
             </div>
           </div>
@@ -60,14 +75,14 @@ function EditTaskModal({ task }) {
           <Button
             color="primary"
             style={{ width: "72px", margin: "2px" }}
-            onClick={toggle}
+            onClick={handleButtonSave}
           >
             Save
           </Button>
           <Button
             color="secondary"
             style={{ width: "72px", margin: "2px" }}
-            onClick={toggle}
+            onClick={toggleClear}
           >
             Cancel
           </Button>
@@ -77,4 +92,8 @@ function EditTaskModal({ task }) {
   );
 }
 
-export default EditTaskModal;
+const mapDispatchToProps = (dispatch) => ({
+  updateTask: (task) => dispatch(updateTask(task)),
+});
+
+export default connect(null, mapDispatchToProps)(EditTodoModal);

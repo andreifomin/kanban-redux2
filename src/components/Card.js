@@ -1,19 +1,18 @@
 import { connect } from "react-redux";
-import { changeTaskPriority, changeTaskStatus } from "../redux/actions";
-import EditTaskModal from "./EditTaskModal";
+import {
+  changeTaskPriority,
+  changeTaskStatus,
+  kanbanModalModeDelete,
+  kanbanModalModeEdit,
+  toggleKanbanModal,
+} from "../redux/actions";
 
-function Card({
-  task,
-  statuses,
-  priorities,
-  onClickChangeTaskStatus,
-  onCLickChangeTaskPriority,
-}) {
+function Card(props) {
   return (
-    <div className="card">
+    <div className="card" style={props.index ? { marginTop: "16px" } : null}>
       <div className="card-body">
-        <h5 className="card-title">{task.name}</h5>
-        <p className="card-text">{task.description}</p>
+        <h5 className="card-title">{props.task.name}</h5>
+        <p className="card-text">{props.task.description}</p>
       </div>
       <ul className="list-group list-group-flush">
         {/*Status*/}
@@ -25,18 +24,20 @@ function Card({
             type="button"
             className="btn btn-outline-primary"
             style={{ width: "36px", height: "36px", padding: "0" }}
-            onClick={() => onClickChangeTaskStatus(task.id, -1)}
-            disabled={task.status === statuses[0]}
+            onClick={() => props.changeTaskStatus(props.task.id, -1)}
+            disabled={props.task.status === props.statuses[0]}
           >
             ←
           </button>
-          {task.status}
+          {props.task.status}
           <button
             type="button"
             className="btn btn-outline-primary"
             style={{ width: "36px", height: "36px", padding: "0" }}
-            onClick={() => onClickChangeTaskStatus(task.id, 1)}
-            disabled={task.status === statuses[statuses.length - 1]}
+            onClick={() => props.changeTaskStatus(props.task.id, 1)}
+            disabled={
+              props.task.status === props.statuses[props.statuses.length - 1]
+            }
           >
             →
           </button>
@@ -51,18 +52,21 @@ function Card({
             type="button"
             className="btn btn-outline-primary"
             style={{ width: "28px", height: "28px", padding: "0" }}
-            onClick={() => onCLickChangeTaskPriority(task.id, 1)}
-            disabled={task.priority === priorities[priorities.length - 1]}
+            onClick={() => props.changeTaskPriority(props.task.id, 1)}
+            disabled={
+              props.task.priority ===
+              props.priorities[props.priorities.length - 1]
+            }
           >
             ↓
           </button>
-          Priority: {task.priority}
+          Priority: {props.task.priority}
           <button
             type="button"
             className="btn btn-outline-primary"
             style={{ width: "28px", height: "28px", padding: "0" }}
-            onClick={() => onCLickChangeTaskPriority(task.id, -1)}
-            disabled={task.priority === priorities[0]}
+            onClick={() => props.changeTaskPriority(props.task.id, -1)}
+            disabled={props.task.priority === props.priorities[0]}
           >
             ↑
           </button>
@@ -71,11 +75,23 @@ function Card({
 
       {/*Buttons*/}
       <div className="card-body">
-        <EditTaskModal task={task} />{" "}
+        <button
+          type="button"
+          className="btn btn-outline-warning"
+          style={{ width: "72px" }}
+          onClick={() =>
+            props.toggleKanbanModal(props.task, kanbanModalModeEdit)
+          }
+        >
+          Edit
+        </button>{" "}
         <button
           type="button"
           className="btn btn-outline-danger"
           style={{ width: "72px" }}
+          onClick={() =>
+            props.toggleKanbanModal(props.task, kanbanModalModeDelete)
+          }
         >
           Delete
         </button>
@@ -90,10 +106,11 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  onClickChangeTaskStatus: (id, changeValue) =>
+  changeTaskStatus: (id, changeValue) =>
     dispatch(changeTaskStatus(id, changeValue)),
-  onCLickChangeTaskPriority: (id, changeValue) =>
+  changeTaskPriority: (id, changeValue) =>
     dispatch(changeTaskPriority(id, changeValue)),
+  toggleKanbanModal: (task, mode) => dispatch(toggleKanbanModal(task, mode)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Card);

@@ -1,43 +1,45 @@
+import { v4 as uuidv4 } from "uuid";
 import {
   ADD_NEW_TASK,
   CHANGE_TASK_STATUS,
   CHANGE_TASK_PRIORITY,
-  EDIT_TASK,
+  UPDATE_TASK,
   DELETE_TASK,
+  TOGGLE_KANBAN_MODAL,
 } from "./actions";
 
 const initialState = {
   tasks: [
     {
-      id: 111,
+      id: uuidv4(),
       name: "task 1",
       description: "do kanban",
       status: "todo",
       priority: 1,
     },
     {
-      id: 112,
+      id: uuidv4(),
       name: "task 2",
       description: "do list",
       status: "in progress",
       priority: 2,
     },
     {
-      id: 113,
+      id: uuidv4(),
       name: "task 3",
       description: "do homework",
       status: "in progress",
       priority: 3,
     },
     {
-      id: 114,
+      id: uuidv4(),
       name: "task 4",
       description: "do articles",
       status: "in review",
       priority: 4,
     },
     {
-      id: 115,
+      id: uuidv4(),
       name: "task 5",
       description: "do list of profitable goods",
       status: "done",
@@ -47,22 +49,45 @@ const initialState = {
   statuses: ["todo", "in progress", "in review", "done"],
   priorities: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
   title: "Kanban Board",
+
+  kanbanModalData: {
+    isOpen: false,
+    task: {},
+    mode: "",
+  },
 };
 
 const reducer = (state = initialState, action) => {
   switch (action.type) {
     case ADD_NEW_TASK:
-      return state;
+      return {
+        ...state,
+        tasks: [...state.tasks, { ...action.payload, id: uuidv4() }],
+      };
 
-    case EDIT_TASK:
-      return state;
+    case UPDATE_TASK:
+      return {
+        ...state,
+        tasks: state.tasks.map((task) =>
+          task.id === action.payload.id
+            ? {
+                ...task,
+                name: action.payload.name,
+                description: action.payload.description,
+              }
+            : task
+        ),
+      };
 
     case DELETE_TASK:
-      return state;
+      return {
+        ...state,
+        tasks: state.tasks.filter((task) => task.id !== action.payload),
+      };
 
     case CHANGE_TASK_STATUS:
       const statusIndex = state.statuses.indexOf(
-        state.tasks.filter((task) => task.id === action.payload.id)[0].status
+        state.tasks.find((task) => task.id === action.payload.id).status
       );
       return {
         ...state,
@@ -86,13 +111,25 @@ const reducer = (state = initialState, action) => {
         tasks: state.tasks.map((task) =>
           task.id === action.payload.id
             ? {
-              ...task,
-              priority:
-                state.priorities[priorityIndex] + action.payload.changeValue,
-            }
+                ...task,
+                priority:
+                  state.priorities[priorityIndex] + action.payload.changeValue,
+              }
             : task
         ),
       };
+
+    case TOGGLE_KANBAN_MODAL:
+      return {
+        ...state,
+        kanbanModalData: {
+          ...state.kanbanModalData,
+          isOpen: !state.kanbanModalData.isOpen,
+          task: action.payload.task,
+          mode: action.payload.mode,
+        },
+      };
+
     default:
       return state;
   }
